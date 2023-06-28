@@ -1,0 +1,234 @@
+---
+title: "Regression"
+output: html_document
+date: "2023-06-25"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Land Cover General Introduction and Interpretation          
+Landcover 21 indicates developed and open space areas with a mixture of some constructed materials, but mostly vegetation in the form of law grasses. In this type of landcover, the impervious surfaces account for less than 20% of the total cover. It has the highest albedo or radiation reflectivity, 0.14, when comparing to the landcover 22, 23, and 24.  
+
+Landcover 22 indicates developed, low intensity area with impervious surfaces account for 20-49 percent of total cover. Many single-family housing units usually fall into this category. This landcover's albedo is 0.13.
+
+Landcover 23 indicates developed, medium intensity area with impervious surfaces account for 50-79% of the total cover. Many single-family housing units also fall into this category. This landcover's albedo is 0.12. 
+
+Landcover 24 is highly developed areas with impervious surfaces account for 80-100% of the total cover. This landcover has the albedo 0.10, and usually apartment complexes, row houses and commercial/industrial fall into this category. 
+
+## R Markdown
+```{r}
+library(tidyverse)  #for data manipulation, exploration, and visualization
+library(broom) #turn into tidy dataframe
+library(survey) #functions for analyzing complex survey samples
+library(ggpubr) #creating and customizing ggplot2-based plot
+library(ggrepel) #provides text and label geoms for ggplot2
+library(kableExtra) #helps with building complex tables
+library(plotrix) #gives a variety of plots
+library(knitr) #creating nice reports in RMarkdown
+library(patchwork) #
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+
+
+landsat <- read_excel("Landsat.xlsx")
+dim(landsat)
+
+## Exploratory Data Analysis
+
+plot1 <- landsat%>%
+  ggplot()+
+  geom_point(aes(x=treecover, y=Tair21), stat="identity")+
+  geom_point(aes(x = treecover, y = Tair22), color = "red", stat = "identity")+
+  geom_point(aes(x = treecover, y = Tair23), color = "blue", stat = "identity")+
+  geom_point(aes(x = treecover, y = Tair24), color = "green", stat = "identity")+
+  labs(title = "Landcover",
+       caption = "Figure 1") +
+  xlab('Treecover')+
+  ylab('Temperature in K')+
+  scale_color_manual(values = c("Tair21" = "black", "Tair22" = "red", "Tair23" = "blue", "Tair24" = "green"),
+  labels = c("Tair21", "Tair22", "Tair23", "Tair24"))+
+  theme_bw()
+
+plot1
+```
+
+```{r}
+##Regression landcover 21
+
+#blank
+blank21 <- lm(Tair21~treecover, data=landsat)
+#one-unit increase in treecover is associated with an average increase of 0.007074 units in the response variable y.
+
+impervious21 <- lm(Tair21~treecover+impervious, data=landsat)
+
+elevation21 <- lm(Tair21~treecover+elevation, data=landsat)
+
+alladd21<- lm(Tair21~treecover+impervious+elevation, data=landsat)
+
+imp21 <- lm(Tair21~treecover*impervious, data=landsat)
+
+ele21 <- lm(Tair21~treecover*elevation, data=landsat)
+
+allmul21 <- lm(Tair21~treecover*elevation*treecover, data=landsat)
+
+tree_imp21 <- lm(Tair21~treecover*elevation+impervious, data=landsat)
+
+imp_tree21 <- lm(Tair21~treecover*impervious, data=landsat)
+
+aic_values <- c(AIC(blank21), AIC(impervious21), AIC(elevation21), AIC(alladd21), AIC(imp21), AIC(ele21), AIC(allmul21), AIC(tree_imp21), AIC(imp_tree21))
+model_names <- c("blank21", "+impervious", "+elevation","+imp+ele", "*impervious", "*elevation", "*imp*ele", "*ele+imp","*imp+ele")
+aic_table <- data.frame(
+  Model = model_names,
+  AIC = aic_values) %>%
+  arrange(AIC)
+
+print(aic_table)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#so that impervious is an effect modifier. 
+
+#best fitted model: 
+imp_tree21 <- lm(Tair21~treecover*impervious, data=landsat)
+
+```
+The coefficient for treecover is -0.01605. It indicates that, on average, for every one unit increase in treecover, the response variable Tair21 is expected to decrease by 0.01605F, assuming all other variables are held constant.
+
+treecover:impervious is -7.291e-05 (approximately -0.00007291). This suggests that the relationship between treecover and Tair21 is modified by the level of impervious, and that for every one unit increase in treecover, after modifying the effect of impervious surface, the response variable Tair21 is expected to decrease by 0.00007291. 
+
+
+```{r}
+blank22 <- lm(Tair22~treecover, data=landsat)
+
+impervious22 <- lm(Tair22~treecover+impervious, data=landsat)
+
+elevation22 <- lm(Tair22~treecover+elevation, data=landsat)
+
+alladd22<- lm(Tair22~treecover+impervious+elevation, data=landsat)
+
+imp22 <- lm(Tair22~treecover*impervious, data=landsat)
+
+ele22 <- lm(Tair22~treecover*elevation, data=landsat)
+
+allmul22 <- lm(Tair22~treecover*elevation*treecover, data=landsat)
+
+tree_imp22 <- lm(Tair22~treecover*elevation+impervious, data=landsat)
+
+imp_tree22 <- lm(Tair22~treecover*impervious+elevation, data=landsat)
+
+aic_values <- c(AIC(blank22),AIC(impervious22), AIC(elevation22), AIC(alladd22), AIC(imp22), AIC(ele22), AIC(allmul22), AIC(tree_imp22), AIC(imp_tree22))
+model_names <- c("blank22", "+impervious", "+elevation","+imp+ele", "*impervious", "*elevation", "*imp*ele", "*ele+imp","*imp+ele")
+aic_table2 <- data.frame(
+  Model = model_names,
+  AIC = aic_values) %>%
+  arrange(AIC)
+
+print(aic_table2)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+```
+
+imp_tree22: 
+The coefficient for treecover is -0.01649. It indicates that, on average, for every one unit increase in treecover, the response variable Tair22 is expected to decrease by 0.01649, assuming all other variables are held constant.
+
+treecover:impervious is -8.518e-05 (approximately -0.00007291). This suggests that the relationship between treecover and Tair21 is modified by the level of impervious, and that for every one unit increase in treecover, after modifying the effect of impervious surface, the response variable Tair22 is expected to decrease by 0.00008518.
+
+```{r}
+blank23 <- lm(Tair23~treecover, data=landsat)
+
+impervious23 <- lm(Tair23~treecover+impervious, data=landsat)
+
+elevation23 <- lm(Tair23~treecover+elevation, data=landsat)
+
+alladd23<- lm(Tair23~treecover+impervious+elevation, data=landsat)
+
+imp23 <- lm(Tair23~treecover*impervious, data=landsat)
+
+ele23 <- lm(Tair23~treecover*elevation, data=landsat)
+
+allmul23 <- lm(Tair23~treecover*elevation*treecover, data=landsat)
+
+tree_imp23 <- lm(Tair23~treecover*elevation+impervious, data=landsat)
+
+imp_tree23 <- lm(Tair23~treecover*impervious+elevation, data=landsat)
+
+aic_values <- c(AIC(blank23), AIC(impervious23), AIC(elevation23), AIC(alladd23), AIC(imp23), AIC(ele23), AIC(allmul23), AIC(tree_imp23), AIC(imp_tree23))
+model_names <- c("blank23", "+impervious", "+elevation","+imp+ele", "*impervious", "*elevation", "*imp*ele", "*ele+imp","*imp+ele")
+aic_table3 <- data.frame(
+  Model = model_names,
+  AIC = aic_values) %>%
+  arrange(AIC)
+
+print(aic_table3)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+```
+imp_tree23: 
+The coefficient for treecover is -0.01652. It indicates that, on average, for every one unit increase in treecover, the response variable Tair22 is expected to decrease by 0.01652, assuming all other variables are held constant.
+
+treecover:impervious is -1.031e-04 (approximately -0.0001031). This suggests that the relationship between treecover and Tair23 is modified by the level of impervious, and that for every one unit increase in treecover, after modifying the effect of impervious surface, the response variable Tair23 is expected to decrease by 0.0001031.
+
+```{r}
+imp24 <- lm(Tair24~treecover*impervious, data=landsat)
+```
+
+The coefficient for treecover is -0.01699. It indicates that, on average, for every one unit increase in treecover, the response variable Tair22 is expected to decrease by 0.01699, assuming all other variables are held constant.
+
+treecover:impervious is -1.595e-04 (approximately -0.0001595). This suggests that the relationship between treecover and Tair24 is modified by the level of impervious, and that for every one unit increase in treecover, after modifying the effect of impervious surface, the response variable Tair24 is expected to decrease by 0.0001595.
+```{r}
+tidy21 <- tidy(imp21, conf.int = TRUE)
+tidy22 <- tidy(imp22, conf.int = TRUE)
+tidy23<- tidy(imp23, conf.int = TRUE)
+tidy24 <- tidy(imp24, conf.int = TRUE)
+tidy21
+tidy22
+tidy23
+tidy24
+```
+
+
+```{r}
+#Tdew
+tdew21 <- lm(Tdew21~treecover*impervious, data=landsat)
+tidydew21 <- tidy(tdew21, conf.int = TRUE)
+tdew22 <- lm(Tdew22~treecover*impervious, data=landsat)
+tidydew22 <- tidy(tdew22, conf.int = TRUE)
+tdew23 <- lm(Tdew23~treecover*impervious, data=landsat)
+tidydew23 <- tidy(tdew23, conf.int = TRUE)
+tdew24 <- lm(Tdew24~treecover*impervious, data=landsat)
+tidydew24 <- tidy(tdew24, conf.int = TRUE)
+
+tidydew21
+tidydew22
+tidydew23
+tidydew24
+
+```
+
+### Literature reviews 1
+We demonstrate this method by looking at Baltimore City, Maryland. We find that increasing tree cover by 10% reduces heat-related deaths by 83 to 247 people, and more than 50% of the reduced mortality is among people aged 65 or older. Reductions in air temperature due to increased tree cover were greatest in downtown Baltimore where tree cover is relatively low and impervious cover is relatively high. The highest mortality reduction was seen not directly in downtown Baltimore but instead in the outskirts where the majority of people aged 65 or older live.
+https://www.rti.org/insights/city-planners-should-be-mindful-tree-cover-temperatures-rise-and-populations-expand
+
+### Literature reviews 2
+We subdivided tree canopy into 'soft' (over unpaved surfaces) and 'hard' (over paved surfaces) canopy classes and further partitioned soft canopy into distributed (narrow edges) and clumped patches (edges with interior cores).
+Soft canopy cooled nonlinearly in the afternoon with minimal effect until ∼40% cover but strongly (and linearly) across all cover fractions in the evening (pd = 0.7 °C ± 1.1 °C, aft = 2.0 °C ± 0.7 °C, eve = 2.9 °C ± 0.6 °C). Patches cooled at all times of day despite uneven allocation throughout the city, whereas more distributed canopy cooled in predawn and evening due to increased shading. 
+
+https://iopscience.iop.org/article/10.1088/1748-9326/ac12f2
+
+### Literature reviews 3
+Further, our analysis shows that the greenspace coverage and distance to bluespaces play an important role in cooling the local canopy during daytime, explaining 25.0–41.1% of daytime spatial variation of canopy temperatures while surrounding buildings modulate canopy temperature asymmetrically diurnally: reduced daytime warming and reduced nocturnal cooling.
+https://www.nature.com/articles/s41598-021-89972-0
+
+### Literature reviews 4
+Urban Green infrastructure (UGI) is found to cool European cities by 1.07 °C on average, and up to 2.9 °C, but in order to achieve a 1 °C drop in urban temperatures, a tree cover of at least 16% is required.
+https://publications.jrc.ec.europa.eu/repository/handle/JRC125529
+
+### Literature reviews 5
+Temperature decreased nonlinearly with increasing canopy cover, with the greatest cooling when canopy cover exceeded 40%.
+The figures that I have derived from week 3 comprehensive 11x11 scale summary excel sheet actually align with the 40% finding (for all four types of landcovers). And my findings agree with this nonlinear trend.
+
+https://www-pnas-org.proxy1.library.jhu.edu/doi/10.1073/pnas.1817561116
+
+### Literature reviews 6
+https://www.mdpi.com/1999-4907/14/1/80
