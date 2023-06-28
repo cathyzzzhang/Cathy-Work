@@ -231,4 +231,5 @@ The figures that I have derived from week 3 comprehensive 11x11 scale summary ex
 https://www-pnas-org.proxy1.library.jhu.edu/doi/10.1073/pnas.1817561116
 
 ### Literature reviews 6
+The cooling effect of trees gradually increased with increasing tree coverage. Under the same coverage, trees with a tree crown diameter (TCD) of 3 m have the strongest cooling capacity, followed by trees with a TCD of 7 m, and trees with a TCD of 5 m have the weakest cooling capacity. The cooling capacity of a TCD of 3 m is considerably higher than that a TCD of 5 m and a TCD of 7 m. When the tree coverage ratio is 50%, the difference among the three TCDs is the largest. 
 https://www.mdpi.com/1999-4907/14/1/80
