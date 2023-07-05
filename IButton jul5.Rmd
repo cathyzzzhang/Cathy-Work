@@ -1,0 +1,173 @@
+---
+title: "IButton7/5"
+output: html_document
+date: "2023-07-02"
+---
+```{r library,echo=FALSE, message=FALSE, include=FALSE}
+library(tidyverse)  #for data manipulation, exploration, and visualization
+library(broom) #turn into tidy dataframe
+library(survey) #functions for analyzing complex survey samples
+library(ggpubr) #creating and customizing ggplot2-based plot
+library(ggrepel) #provides text and label geoms for ggplot2
+library(kableExtra) #helps with building complex tables
+library(plotrix) #gives a variety of plots
+library(knitr) #creating nice reports in RMarkdown
+library(patchwork) #
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+```
+
+```{r,echo=FALSE, message=FALSE, include=FALSE}
+temp <- read_csv("Temp2022.csv")
+aug <- read_excel("August2pm.xlsx")
+
+column1 <- temp[, c(1,2)]
+
+maytable <- head(temp, n = 144)
+
+
+plot1 <-
+  ggplot(maytable, aes(x = Date, y = sensor1),stat="identity")+
+  geom_point()+
+  theme_bw()
+
+
+  
+fullgrass <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor3), color = "red") +
+  geom_line(aes(y = sensor16), color = "blue") +
+  scale_color_manual(values = c("red", "blue")) +
+  labs(title = "Full Shade Grass",
+       subtitle = "sensor3 (red) compared to sensor16 (blue)",
+       caption = "Figure 1") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+fullsoil <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor5), color = "green") +
+  geom_line(aes(y = sensor7), color = "pink") +
+  scale_color_manual(values = c("green", "pink")) +
+  labs(title = "Full Shade Soil",
+       subtitle = "sensor5 (green) compared to sensor7 (pink)",
+       caption = "Figure 2") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+mix1<- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor3), color = "red") +
+  geom_line(aes(y = sensor16), color = "blue")+
+  geom_line(aes(y = sensor5), color = "green") +
+  geom_line(aes(y = sensor7), color = "pink") +
+  scale_color_manual(values = c("green", "pink")) +
+  labs(title = "Full Shades",
+       subtitle = "sensor 3(red), sensor 16 (blue) sensor5 (green)  sensor7 (pink)",
+       caption = "Figure 3") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+partialgrass <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor8), color = "orange") +
+  geom_line(aes(y = sensor34), color = "purple") +
+  scale_color_manual(values = c("orange", "purple")) +
+  labs(title = "Partial Shade Grass",
+       subtitle = "sensor8 (orange) compared to sensor34 (purple)",
+       caption = "Figure 4") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+partialsoil <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor11), color = "darkblue") +
+  geom_line(aes(y = sensor32), color = "darkred") +
+  scale_color_manual(values = c("darkblue", "darkred")) +
+  labs(title = "Partial Shade Soil",
+       subtitle = "sensor11 (darkblue) compared to sensor32 (darkred)",
+       caption = "Figure 5") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+partialimp <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor38), color = "darkgreen") +
+  geom_line(aes(y = sensor50), color = "magenta") +
+  scale_color_manual(values = c("darkgreen", "magenta")) +
+  labs(title = "Partial Shade Impervious",
+       subtitle = "sensor38 (darkgreen) compared to sensor50 (magenta)",
+       caption = "Figure 6") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+mix2 <- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor8), color = "orange") +
+  geom_line(aes(y = sensor34), color = "purple") +
+  geom_line(aes(y = sensor11), color = "darkblue") +
+  geom_line(aes(y = sensor32), color = "darkred") +
+  geom_line(aes(y = sensor38), color = "darkgreen") +
+  geom_line(aes(y = sensor50), color = "magenta") +
+  scale_color_manual(values = c("darkgreen", "magenta")) +
+  labs(title = "Partial Shades",
+       subtitle = "sensor8 (orange),sensor34 (purple), sensor11 (darkblue), sensor32 (darkred), sensor38 (darkgreen), sensor50 (magenta)",
+       caption = "Figure 6") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+fullpartialGrass <- aug%>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor3), color = "red") +
+  geom_line(aes(y = sensor16), color = "blue") +
+  geom_line(aes(y = sensor8), color = "orange") +
+  geom_line(aes(y = sensor34), color = "purple") +
+  scale_color_manual(values = c("orange", "purple")) +
+  labs(title = "Full vs. Partial Shade - Grass",
+       subtitle = "red blue full shade, orange purple partial shade)",
+       caption = "Figure 8") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+cluster<- aug %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor63), color = "green") +
+  geom_line(aes(y = sensor45), color = "red") +
+  geom_line(aes(y = sensor34), color = "orange") +
+  geom_line(aes(y = sensor57), color = "blue") +
+  geom_line(aes(y = sensor50), color = "black")+
+  labs(title = "Partial Grass Cluster (mix)",
+       subtitle = "green 63, red 45, orange 34, blue 57, black is partial impervious sensor 50",
+       caption = "Figure 8") +
+  xlab('August Date/Time') +
+  ylab('Temperature in C') +
+  theme_bw()
+
+```
+
+```{r}
+fullgrass
+fullsoil
+mix1
+partialgrass
+partialsoil
+partialimp
+mix2
+fullpartialGrass
+cluster
+
+```
+
