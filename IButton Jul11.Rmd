@@ -1,0 +1,543 @@
+---
+title: "IButton Jul11"
+output: html_document
+date: "2023-07-11"
+---
+```{r library,echo=FALSE, message=FALSE, include=FALSE}
+library(tidyverse)  #for data manipulation, exploration, and visualization
+library(broom) #turn into tidy dataframe
+library(survey) #functions for analyzing complex survey samples
+library(ggpubr) #creating and customizing ggplot2-based plot
+library(ggrepel) #provides text and label geoms for ggplot2
+library(kableExtra) #helps with building complex tables
+library(plotrix) #gives a variety of plots
+library(knitr) #creating nice reports in RMarkdown
+library(patchwork) #
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+```
+
+```{r}
+aug <- read_excel("August5am.xlsx")
+aug2 <- read_excel("August2pm.xlsx")
+aug$Date <- factor(aug$Date, levels = unique(aug$Date))
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+```
+
+## Full Shade Grass
+### Full Shade Grass 5AM
+
+```{r}
+fullgrass <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button3), color = "red") +
+  geom_line(aes(y = button16), color = "orange") +
+  geom_line(aes(y = button23), color = "green") +
+  geom_line(aes(y = button25), color = "cyan") +
+  geom_line(aes(y = button26), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Full Shade Grass",
+    subtitle = "sensor3 (red), sensor16 (orange), sensor23(green), sensor25(cyan), sensor26(blue)",
+    caption = "Figure 1"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+fullgrass <- fullgrass + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+fullgrass
+
+```
+
+### Full Shade Grass 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor3 <- as.numeric(aug2$sensor3)
+aug2$sensor16 <- as.numeric(aug2$sensor16)
+aug2$sensor23 <- as.numeric(aug2$sensor23)
+aug2$sensor25 <- as.numeric(aug2$sensor25)
+aug2$sensor26 <- as.numeric(aug2$sensor26)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+fullgrass2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor3), color = "red") +
+  geom_line(aes(y = sensor16), color = "orange") +
+  geom_line(aes(y = sensor23), color = "green") +
+  geom_line(aes(y = sensor25), color = "cyan") +
+  geom_line(aes(y = sensor26), color = "blue") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Full Shade Grass (2pm)",
+    subtitle = "sensor3 (red), sensor16 (orange), sensor23(green), sensor25(cyan), sensor26(blue)",
+    caption = "Figure 2"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+fullgrass2 <- fullgrass2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+fullgrass2
+```
+## Full Soil 
+### Full Soil 5AM
+```{r}
+fullsoil <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button5), color = "red") +
+  geom_line(aes(y = button7), color = "orange") +
+  geom_line(aes(y = button10), color = "green") +
+  geom_line(aes(y = button12), color = "cyan") +
+  geom_line(aes(y = button14), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Full Shade Soil",
+    subtitle = "sensor5 (red), sensor7 (orange), sensor10(green), sensor12(cyan), sensor14(blue)",
+    caption = "Figure 3"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+fullsoil <- fullsoil + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+fullsoil
+```
+### Full Soil 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor5 <- as.numeric(aug2$sensor5)
+aug2$sensor7 <- as.numeric(aug2$sensor7)
+aug2$sensor10 <- as.numeric(aug2$sensor10)
+aug2$sensor12 <- as.numeric(aug2$sensor12)
+aug2$sensor14 <- as.numeric(aug2$sensor14)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+fullsoil2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor5), color = "red") +
+  geom_line(aes(y = sensor7), color = "orange") +
+  geom_line(aes(y = sensor10), color = "green") +
+  geom_line(aes(y = sensor12), color = "cyan") +
+  geom_line(aes(y = sensor14), color = "blue") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Full Shade Soil (2pm)",
+    subtitle = "sensor5 (red), sensor7 (orange), sensor10 (green), sensor12 (cyan), sensor14 (blue)",
+    caption = "Figure 4"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+fullsoil2 <- fullsoil2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+fullsoil2
+```
+## Partial Grass
+### Partial Grass 5AM
+```{r}
+partialgrass <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button8), color = "red") +
+  geom_line(aes(y = button34), color = "orange") +
+  geom_line(aes(y = button35), color = "green") +
+  geom_line(aes(y = button41), color = "cyan") +
+  geom_line(aes(y = button45), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Partial Shade Grass",
+    subtitle = "sensor8 (red), sensor34 (orange), sensor35 (green), sensor41 (cyan), sensor45 (blue)",
+    caption = "Figure 5"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialgrass <- partialgrass + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialgrass
+```
+### Partial Grass 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor8 <- as.numeric(aug2$sensor8)
+aug2$sensor34 <- as.numeric(aug2$sensor34)
+aug2$sensor35 <- as.numeric(aug2$sensor35)
+aug2$sensor41 <- as.numeric(aug2$sensor41)
+aug2$sensor45 <- as.numeric(aug2$sensor45)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+partialgrass2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor8), color = "red") +
+  geom_line(aes(y = sensor34), color = "orange") +
+  geom_line(aes(y = sensor35), color = "green") +
+  geom_line(aes(y = sensor41), color = "cyan") +
+  geom_line(aes(y = sensor45), color = "blue") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Partial Shade Grass (2pm)",
+    subtitle = "sensor8 (red), sensor34 (orange), sensor35 (green), sensor41 (cyan), sensor45 (blue)",
+    caption = "Figure 6"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialgrass2 <- partialgrass2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialgrass2
+```
+
+## Partial Soil 
+### Partial Soil 5AM
+```{r}
+partialsoil <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button11), color = "red") +
+  geom_line(aes(y = button32), color = "orange") +
+  geom_line(aes(y = button36), color = "green") +
+  geom_line(aes(y = button46), color = "cyan") +
+  geom_line(aes(y = button61), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Partial Shade Soil",
+    subtitle = "sensor11 (red), sensor32 (orange), sensor36 (green), sensor46 (cyan), sensor61 (blue)",
+    caption = "Figure 6"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialsoil <- partialsoil + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialsoil
+```
+
+
+### Partial Soil 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor11 <- as.numeric(aug2$sensor11)
+aug2$sensor32 <- as.numeric(aug2$sensor32)
+aug2$sensor36 <- as.numeric(aug2$sensor36)
+aug2$sensor46 <- as.numeric(aug2$sensor46)
+aug2$sensor61 <- as.numeric(aug2$sensor61)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+partialsoil2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor11), color = "red") +
+  geom_line(aes(y = sensor32), color = "orange") +
+  geom_line(aes(y = sensor36), color = "green") +
+  geom_line(aes(y = sensor46), color = "cyan") +
+  geom_line(aes(y = sensor61), color = "blue") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Partial Shade Soil (2pm)",
+    subtitle = "sensor11 (red), sensor32 (orange), sensor36 (green), sensor46 (cyan), sensor61 (blue)",
+    caption = "Figure 6"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialsoil2 <- partialsoil2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialsoil2
+```
+
+## Partial Shade Impervious
+
+### Partial Impervious 5AM
+```{r}
+partialimp <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button38), color = "red") +
+  geom_line(aes(y = button50), color = "orange") +
+  geom_line(aes(y = button104), color = "green") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Partial Shade Impervious",
+    subtitle = "sensor38 (red), sensor50 (orange), sensor104 (green)",
+    caption = "Figure 7"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialimp <- partialimp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialimp
+```
+### Partial Shade Impervious 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor38 <- as.numeric(aug2$sensor38)
+aug2$sensor50 <- as.numeric(aug2$sensor50)
+aug2$sensor104 <- as.numeric(aug2$sensor104)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+partialimp2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor38), color = "red") +
+  geom_line(aes(y = sensor50), color = "orange") +
+  geom_line(aes(y = sensor104), color = "green") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Partial Shade Impervious (2pm)",
+    subtitle = "sensor38 (red), sensor50 (orange), sensor104 (green)",
+    caption = "Figure 8"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+partialimp2 <- partialimp2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+partialimp2
+```
+
+### Shade Grass
+### Shade Grass 5AM
+```{r}
+shadegrass <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = button15), color = "red") +
+  geom_line(aes(y = button17), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Shade Grass",
+    subtitle = "sensor15 (red), sensor17 (blue)",
+    caption = "Figure 9"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+shadegrass <- shadegrass + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+shadegrass
+```
+
+### Shade Grass 2PM
+```{r}
+aug2$August <- factor(aug2$August, levels = unique(aug2$August))
+aug2$sensor15 <- as.numeric(aug2$sensor15)
+aug2$sensor17 <- as.numeric(aug2$sensor17)
+aug2$ReportC <- as.numeric(aug2$ReportC)
+
+shadegrass2 <- aug2 %>%
+  ggplot(mapping = aes(x = August, group = 1)) +
+  geom_line(aes(y = sensor15), color = "red") +
+  geom_line(aes(y = sensor17), color = "blue") +
+  geom_line(aes(y = ReportC), color = "black") +
+  labs(
+    title = "Shade Grass (2pm)",
+    subtitle = "sensor15 (red), sensor17 (orange)",
+    caption = "Figure 10"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+shadegrass2 <- shadegrass2 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+shadegrass2
+```
+
+## Part 2
+```{r}
+button <- read_excel("ButtonTiffNum.xlsx")
+summary(button)
+```
+
+### Mean Albedo
+#### Categorized by Shades
+```{r}
+#extract the subset of rows of the data frame where Ozone values are above 31 and Temp values are above 90. What is the mean of Solar.R in the subset
+
+mean(x=button$Albedo, na.rm = TRUE)
+fullshade_data <- subset(button, Shade == "fullshade")
+fullshade_avg_albedo <- mean(fullshade_data$Albedo, na.rm = TRUE)
+
+partialshade_data <- subset(button, Shade == "partialshade")
+partialshade_avg_albedo <- mean(partialshade_data$Albedo, na.rm = TRUE)
+
+shade_data <- subset(button, Shade == "shade")
+shade_avg_albedo <- mean(shade_data$Albedo, na.rm = TRUE)
+
+shade_avg_table <- data.frame(
+  Shade = c("fullshade", "partialshade", "shade"),
+  Average_Albedo = c(fullshade_avg_albedo, partialshade_avg_albedo, shade_avg_albedo)
+)
+shade_avg_table
+```
+
+#### Categorized by GroundCover
+```{r}
+mean(x=button$Albedo, na.rm = TRUE)
+grass_data <- subset(button, Ground == "grass")
+grass_avg_albedo <- mean(grass_data$Albedo, na.rm = TRUE)
+
+soil_data <- subset(button, Ground == "soil")
+soil_avg_albedo <- mean(soil_data$Albedo, na.rm = TRUE)
+
+imperv_data <- subset(button, Ground == "imperv")
+imperv_avg_albedo <- mean(imperv_data$Albedo, na.rm = TRUE)
+
+ground_avg_table <- data.frame(
+  Shade = c("grass", "soil", "imperv"),
+  Average_Albedo = c(grass_avg_albedo, soil_avg_albedo, imperv_avg_albedo)
+)
+ground_avg_table
+```
+
+
+### Mean Canopy
+```{r}
+mean(x=button$Canopy, na.rm = TRUE)
+```
+
+### Mean Elevation
+```{r}
+mean(x=button$Elevation, na.rm = TRUE)
+```
+
+## Regression (Aug 1 5AM)
+```{r}
+Canopy581 <- lm(AugTemp5am81~Canopy, data=button)
+CanopyPAlbedo581 <- lm(AugTemp5am81~Canopy+Albedo, data=button)
+CanopyMAlbedo581 <- lm(AugTemp5am81~Canopy*Albedo, data=button)
+CanopyPElevation581 <- lm(AugTemp5am81~Canopy+Elevation, data=button)
+CanopyMElevation581 <- lm(AugTemp5am81~Canopy*Elevation, data=button)
+CanopyPElevationAlbedo581 <- lm(AugTemp5am81~Canopy+Elevation+Albedo, data=button)
+CanopyMElevationAlbedo581 <- lm(AugTemp5am81~Canopy*Elevation*Albedo, data=button)
+CanopyMElevationPAlbedo581 <- lm(AugTemp5am81~Canopy*Elevation+Albedo, data=button)
+CanopyPElevationMAlbedo581 <- lm(AugTemp5am81~Canopy*Albedo+Elevation, data=button)
+
+aic_values <- c(AIC(Canopy581), AIC(CanopyPAlbedo581), AIC(CanopyMAlbedo581), AIC(CanopyPElevation581), AIC(CanopyMElevation581), AIC(CanopyPElevationAlbedo581), AIC(CanopyMElevationAlbedo581), AIC(CanopyMElevationPAlbedo581), AIC(CanopyPElevationMAlbedo581))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table <- data.frame(
+  Model = model_names,
+  AIC = aic_values) %>%
+  arrange(AIC)
+
+print(aic_table)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#best fitted model: 
+CanopyPElevation581 <- lm(AugTemp5am81~Canopy+Elevation, data=button)
+
+CanopyPElevation581<- tidy(CanopyPElevation581, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyPElevation581 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  select(Term = term, Odds_Ratio = estimate, `p-value` = p.value, `95% CI` = conf.int) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 1: August1 5AM")
+```
+
+## Regression (Aug 1 2PM)
+```{r}
+Canopy281 <- lm(AugTemp2pm81~Canopy, data=button)
+CanopyPAlbedo281 <- lm(AugTemp2pm81~Canopy+Albedo, data=button)
+CanopyMAlbedo281 <- lm(AugTemp2pm81~Canopy*Albedo, data=button)
+CanopyPElevation281 <- lm(AugTemp2pm81~Canopy+Elevation, data=button)
+CanopyMElevation281 <- lm(AugTemp2pm81~Canopy*Elevation, data=button)
+CanopyPElevationAlbedo281 <- lm(AugTemp2pm81~Canopy+Elevation+Albedo, data=button)
+CanopyMElevationAlbedo281 <- lm(AugTemp2pm81~Canopy*Elevation*Albedo, data=button)
+CanopyMElevationPAlbedo281 <- lm(AugTemp2pm81~Canopy*Elevation+Albedo, data=button)
+CanopyPElevationMAlbedo281 <- lm(AugTemp2pm81~Canopy*Albedo+Elevation, data=button)
+
+aic_values2 <- c(AIC(Canopy281), AIC(CanopyPAlbedo281), AIC(CanopyMAlbedo281), AIC(CanopyPElevation281), AIC(CanopyMElevation281), AIC(CanopyPElevationAlbedo281), AIC(CanopyMElevationAlbedo281), AIC(CanopyMElevationPAlbedo281), AIC(CanopyPElevationMAlbedo281))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table2 <- data.frame(
+  Model = model_names,
+  AIC = aic_values2) %>%
+  arrange(AIC)
+
+print(aic_table2)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+
+#best fitted model: 
+CanopyMElevationAlbedo281 <- lm(AugTemp2pm81~Canopy*Elevation*Albedo, data=button)
+
+CanopyMElevationAlbedo281 <- tidy(CanopyMElevationAlbedo281, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyMElevationAlbedo281 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  select(Term = term, Odds_Ratio = estimate, `p-value` = p.value, `95% CI` = conf.int) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 2: August1 2PM")
+
+```
+## Regression (Aug 2 5AM)
+```{r}
+Canopy582 <- lm(AugTemp5am82~Canopy, data=button)
+CanopyPAlbedo582 <- lm(AugTemp5am82~Canopy+Albedo, data=button)
+CanopyMAlbedo582 <- lm(AugTemp5am82~Canopy*Albedo, data=button)
+CanopyPElevation582 <- lm(AugTemp5am82~Canopy+Elevation, data=button)
+CanopyMElevation582 <- lm(AugTemp5am82~Canopy*Elevation, data=button)
+CanopyPElevationAlbedo582 <- lm(AugTemp5am82~Canopy+Elevation+Albedo, data=button)
+CanopyMElevationAlbedo582 <- lm(AugTemp5am82~Canopy*Elevation*Albedo, data=button)
+CanopyMElevationPAlbedo582 <- lm(AugTemp5am82~Canopy*Elevation+Albedo, data=button)
+CanopyPElevationMAlbedo582 <- lm(AugTemp5am82~Canopy*Albedo+Elevation, data=button)
+
+aic_values3 <- c(AIC(Canopy582), AIC(CanopyPAlbedo582), AIC(CanopyMAlbedo582), AIC(CanopyPElevation582), AIC(CanopyMElevation582), AIC(CanopyPElevationAlbedo582), AIC(CanopyMElevationAlbedo582), AIC(CanopyMElevationPAlbedo582), AIC(CanopyPElevationMAlbedo582))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table3 <- data.frame(
+  Model = model_names,
+  AIC = aic_values3) %>%
+  arrange(AIC)
+
+print(aic_table3)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+
+#best fitted model: 
+CanopyPElevation582 <- lm(AugTemp5am82~Canopy+Elevation, data=button)
+
+CanopyPElevation582<- tidy(CanopyPElevation582, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyPElevation582 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  select(Term = term, Odds_Ratio = estimate, `p-value` = p.value, `95% CI` = conf.int) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 3: August2 5AM")
+```
+
+## Regression (Aug 2 2PM)
+```{r}
+Canopy282 <- lm(AugTemp2pm82~Canopy, data=button)
+CanopyPAlbedo282 <- lm(AugTemp2pm82~Canopy+Albedo, data=button)
+CanopyMAlbedo282 <- lm(AugTemp2pm82~Canopy*Albedo, data=button)
+CanopyPElevation282 <- lm(AugTemp2pm82~Canopy+Elevation, data=button)
+CanopyMElevation282 <- lm(AugTemp2pm82~Canopy*Elevation, data=button)
+CanopyPElevationAlbedo282 <- lm(AugTemp2pm82~Canopy+Elevation+Albedo, data=button)
+CanopyMElevationAlbedo282 <- lm(AugTemp2pm82~Canopy*Elevation*Albedo, data=button)
+CanopyMElevationPAlbedo282 <- lm(AugTemp2pm82~Canopy*Elevation+Albedo, data=button)
+CanopyPElevationMAlbedo282 <- lm(AugTemp2pm82~Canopy*Albedo+Elevation, data=button)
+
+aic_values3 <- c(AIC(Canopy282), AIC(CanopyPAlbedo282), AIC(CanopyMAlbedo282), AIC(CanopyPElevation282), AIC(CanopyMElevation282), AIC(CanopyPElevationAlbedo282), AIC(CanopyMElevationAlbedo282), AIC(CanopyMElevationPAlbedo282), AIC(CanopyPElevationMAlbedo282))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table3 <- data.frame(
+  Model = model_names,
+  AIC = aic_values3) %>%
+  arrange(AIC)
+
+print(aic_table3)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+
+#best fitted model: 
+CanopyPElevationAlbedo282 <- lm(AugTemp2pm82~Canopy+Elevation+Albedo, data=button)
+
+CanopyPElevationAlbedo282 <- tidy(CanopyPElevationAlbedo282, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyPElevationAlbedo282 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  select(Term = term, Odds_Ratio = estimate, `p-value` = p.value, `95% CI` = conf.int) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 4: August2 2PM")
+
+```
+
