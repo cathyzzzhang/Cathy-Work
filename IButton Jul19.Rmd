@@ -1,0 +1,348 @@
+---
+title: "IButtonJul19"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-07-19"
+---
+# Section 1: K-Mean Cluster Analysis
+K-means clustering is the most commonly used unsupervised machine learning algorithm for partitioning a given data set into a set of k groups (i.e. k clusters), where k represents the number of groups pre-specified by the analyst. It classifies objects in multiple groups (i.e., clusters), such that objects within the same cluster are as similar as possible (i.e., high intra-class similarity), whereas objects from different clusters are as dissimilar as possible (i.e., low inter-class similarity). 
+
+
+```{r, include=FALSE,echo=FALSE}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r, include=FALSE,echo=FALSE}
+mydata<-read_excel("ButtonAnalysis.xlsx")
+mydata$ButtonNum <- as.character(mydata$ButtonNum)
+str(mydata)
+mydata <- as.data.frame(mydata)
+rownames(mydata) <- c(mydata$ButtonNum)
+head(mydata)
+mydata <- mydata[,-1]
+mydata <- na.omit(mydata)
+mydata <- scale(mydata)
+
+```
+
+
+```{r, include=FALSE,echo=FALSE}
+distance <- get_dist(mydata)
+view<-fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+view
+#fviz_dist: for visualizing a distance matrix
+```
+
+Here will group the data into three clusters:
+```{r}
+k2 <- kmeans(mydata, centers = 6, nstart = 100)
+str(k2)
+fviz_cluster(k2, data = mydata)
+```
+## Albedo and Temp
+```{r}
+albedo5am81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferAlbedo100m, y = AugTemp5am81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+albedo5am81
+
+albedo2pm81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferAlbedo100m, y = AugTemp2pm81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+albedo2pm81
+
+albedo5am82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferAlbedo100m, y = AugTemp5am82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+albedo5am82
+
+albedo2pm82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferAlbedo100m, y = AugTemp2pm82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+albedo2pm82
+```
+
+## Landuse and Temp
+```{r}
+landuse5am81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferLanduse100m, y = AugTemp5am81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+landuse5am81
+
+landuse2pm81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferLanduse100m, y = AugTemp2pm81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+landuse2pm81
+
+landuse5am82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferLanduse100m, y = AugTemp5am82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+landuse5am82
+
+landuse2pm82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferLanduse100m, y = AugTemp2pm82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+landuse2pm82
+```
+### Elevation and Temp
+```{r}
+elevation5am81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferElevation100m, y = AugTemp5am81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+elevation5am81
+
+elevation2pm81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferElevation100m, y = AugTemp2pm81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+elevation2pm81
+
+elevation5am82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferElevation100m, y = AugTemp5am82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+elevation5am82
+
+elevation2pm82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferElevation100m, y = AugTemp2pm82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+elevation2pm82
+```
+
+## Canopy and Temp
+```{r}
+canopy5am81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferCanopy100m, y = AugTemp5am81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+canopy5am81
+
+canopy2pm81<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferCanopy100m, y = AugTemp2pm81, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+canopy2pm81
+
+canopy5am82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferCanopy100m, y = AugTemp5am82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+canopy5am82
+
+canopy2pm82<-mydata %>%
+  as_tibble() %>%
+  mutate(cluster = k2$cluster,
+         state = row.names(.)) %>%
+  ggplot(aes(x = BufferCanopy100m, y = AugTemp2pm82, color = factor(cluster))) +
+  geom_point() +
+  geom_text(aes(label = state), vjust = -0.5, hjust = 0.5)
+canopy2pm82
+
+```
+# Section 2: R-Linear Regression
+## Regression (Aug 1 5am)
+```{r}
+button <- read_excel("ButtonAnalysis.xlsx")
+Canopy581 <- lm(AugTemp5am81~BufferCanopy100m, data=button)
+CanopyPAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m+BufferAlbedo100m, data=button)
+CanopyMAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m*BufferAlbedo100m, data=button)
+CanopyPElevation581 <- lm(AugTemp5am81~BufferCanopy100m+BufferElevation100m, data=button)
+CanopyMElevation581 <- lm(AugTemp5am81~BufferCanopy100m*BufferElevation100m, data=button)
+CanopyPElevationAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m+BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyMElevationAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m*BufferElevation100m*BufferAlbedo100m, data=button)
+CanopyMElevationPAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m*BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyPElevationMAlbedo581 <- lm(AugTemp5am81~BufferCanopy100m*BufferAlbedo100m+BufferElevation100m, data=button)
+
+aic_values <- c(AIC(Canopy581), AIC(CanopyPAlbedo581), AIC(CanopyMAlbedo581), AIC(CanopyPElevation581), AIC(CanopyMElevation581), AIC(CanopyPElevationAlbedo581), AIC(CanopyMElevationAlbedo581), AIC(CanopyMElevationPAlbedo581), AIC(CanopyPElevationMAlbedo581))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table <- data.frame(
+  Model = model_names,
+  AIC = aic_values) %>%
+  arrange(AIC)
+
+print(aic_table)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#best fitted model: 
+CanopyPElevation581 <- lm(AugTemp5am81~BufferCanopy100m+BufferElevation100m, data=button)
+
+CanopyPElevation581<- tidy(CanopyPElevation581, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyPElevation581 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 1: August1 5AM")
+```
+
+## Regression (Aug 1 2pm)
+```{r}
+Canopy281 <- lm(AugTemp2pm81~BufferCanopy100m, data=button)
+CanopyPAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m+BufferAlbedo100m, data=button)
+CanopyMAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferAlbedo100m, data=button)
+CanopyPElevation281 <- lm(AugTemp2pm81~BufferCanopy100m+BufferElevation100m, data=button)
+CanopyMElevation281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferElevation100m, data=button)
+CanopyPElevationAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m+BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyMElevationAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferElevation100m*BufferAlbedo100m, data=button)
+CanopyMElevationPAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyPElevationMAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferAlbedo100m+BufferElevation100m, data=button)
+
+aic_values2 <- c(AIC(Canopy281), AIC(CanopyPAlbedo281), AIC(CanopyMAlbedo281), AIC(CanopyPElevation281), AIC(CanopyMElevation281), AIC(CanopyPElevationAlbedo281), AIC(CanopyMElevationAlbedo281), AIC(CanopyMElevationPAlbedo281), AIC(CanopyPElevationMAlbedo281))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table2 <- data.frame(
+  Model = model_names,
+  AIC = aic_values2) %>%
+  arrange(AIC)
+
+print(aic_table2)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#best fitted model: 
+CanopyMElevationAlbedo281 <- lm(AugTemp2pm81~BufferCanopy100m*BufferElevation100m*BufferAlbedo100m, data=button)
+
+CanopyMElevationAlbedo281<- tidy(CanopyMElevationAlbedo281, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyMElevationAlbedo281 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 2: August1 2PM")
+```
+## Regression (Aug 2 5am)
+```{r}
+Canopy582 <- lm(AugTemp5am82~BufferCanopy100m, data=button)
+CanopyPAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m+BufferAlbedo100m, data=button)
+CanopyMAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m*BufferAlbedo100m, data=button)
+CanopyPElevation582 <- lm(AugTemp5am82~BufferCanopy100m+BufferElevation100m, data=button)
+CanopyMElevation582 <- lm(AugTemp5am82~BufferCanopy100m*BufferElevation100m, data=button)
+CanopyPElevationAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m+BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyMElevationAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m*BufferElevation100m*BufferAlbedo100m, data=button)
+CanopyMElevationPAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m*BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyPElevationMAlbedo582 <- lm(AugTemp5am82~BufferCanopy100m*BufferAlbedo100m+BufferElevation100m, data=button)
+
+aic_values3 <- c(AIC(Canopy582), AIC(CanopyPAlbedo582), AIC(CanopyMAlbedo582), AIC(CanopyPElevation582), AIC(CanopyMElevation582), AIC(CanopyPElevationAlbedo582), AIC(CanopyMElevationAlbedo582), AIC(CanopyMElevationPAlbedo582), AIC(CanopyPElevationMAlbedo582))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table3 <- data.frame(
+  Model = model_names,
+  AIC = aic_values3) %>%
+  arrange(AIC)
+
+print(aic_table3)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#best fitted model: 
+CanopyMElevation582 <- lm(AugTemp5am82~BufferCanopy100m*BufferElevation100m, data=button)
+
+CanopyMElevation582<- tidy(CanopyMElevation582, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyMElevation582 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 3: August2 5AM")
+```
+## Regression (Aug 2 2pm)
+```{r}
+Canopy282 <- lm(AugTemp2pm82~BufferCanopy100m, data=button)
+CanopyPAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m+BufferAlbedo100m, data=button)
+CanopyMAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferAlbedo100m, data=button)
+CanopyPElevation282 <- lm(AugTemp2pm82~BufferCanopy100m+BufferElevation100m, data=button)
+CanopyMElevation282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferElevation100m, data=button)
+CanopyPElevationAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m+BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyMElevationAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferElevation100m*BufferAlbedo100m, data=button)
+CanopyMElevationPAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferElevation100m+BufferAlbedo100m, data=button)
+CanopyPElevationMAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferAlbedo100m+BufferElevation100m, data=button)
+
+aic_values4 <- c(AIC(Canopy282), AIC(CanopyPAlbedo282), AIC(CanopyMAlbedo282), AIC(CanopyPElevation282), AIC(CanopyMElevation282), AIC(CanopyPElevationAlbedo282), AIC(CanopyMElevationAlbedo282), AIC(CanopyMElevationPAlbedo282), AIC(CanopyPElevationMAlbedo282))
+model_names <- c("canopy", "+albedo", "*albedo","+ele", "*ele", "+ele+albedo", "*ele*albedo", "*ele+albedo","*albedo+ele")
+aic_table4 <- data.frame(
+  Model = model_names,
+  AIC = aic_values4) %>%
+  arrange(AIC)
+
+print(aic_table4)
+#The lower the value for AIC, the better the fit of the model. The absolute value of the AIC value is not important. It can be positive or negative.
+
+#best fitted model: 
+CanopyPElevationMAlbedo282 <- lm(AugTemp2pm82~BufferCanopy100m*BufferAlbedo100m+BufferElevation100m, data=button)
+
+CanopyPElevation282<- tidy(CanopyPElevationMAlbedo282, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyPElevation282 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 4: August2 2PM")
+```
+
