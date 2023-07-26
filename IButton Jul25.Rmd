@@ -1,0 +1,91 @@
+---
+title: "IButton Jul25"
+output: html_document
+date: "2023-07-26"
+---
+# Section 1: K-Mean Cluster Analysis
+K-means clustering is the most commonly used unsupervised machine learning algorithm for partitioning a given data set into a set of k groups (i.e. k clusters), where k represents the number of groups pre-specified by the analyst. It classifies objects in multiple groups (i.e., clusters), such that objects within the same cluster are as similar as possible (i.e., high intra-class similarity), whereas objects from different clusters are as dissimilar as possible (i.e., low inter-class similarity). 
+
+```{r, include=FALSE,echo=FALSE}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r, include=FALSE,echo=FALSE}
+mydata<-read_excel("ButtonAnalysisJuly25.xlsx")
+mydata$ButtonNum <- as.character(mydata$ButtonNum)
+str(mydata)
+mydata <- as.data.frame(mydata)
+rownames(mydata) <- c(mydata$ButtonNum)
+head(mydata)
+mydata <- mydata[,-1]
+mydata <- na.omit(mydata)
+mydata <- scale(mydata)
+
+```
+
+```{r, include=FALSE,echo=FALSE}
+distance <- get_dist(mydata)
+view<-fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+view
+#fviz_dist: for visualizing a distance matrix
+```
+
+Here will group the data into three clusters:
+```{r}
+k2 <- kmeans(mydata, centers = 6, nstart = 100)
+str(k2)
+fviz_cluster(k2, data = mydata)
+```
+```{r}
+cluster_assignments <- k2$cluster
+
+# Add the cluster assignments to your original data frame
+mydata_with_clusters <- cbind(mydata, Cluster = cluster_assignments)
+
+print(mydata_with_clusters)
+
+# Save the table to a CSV file
+write.csv(mydata_with_clusters, "mydata_with_clusters.csv", row.names = FALSE)
+```
+# Average5am2pm
+```{r}
+aug <- read_excel("average5am2pm.xlsx")
+aug$Date <- factor(aug$Date, levels = unique(aug$Date))
+
+avgtemp <- aug %>%
+  ggplot(mapping = aes(x = Date, group = 1)) +
+  geom_line(aes(y = average5am), color = "red") +
+  geom_line(aes(y = average2pm), color = "blue") +
+  geom_line(aes(y = reportC), color = "black") +
+  labs(
+    title = "Average August Temperature (ibutton)",
+    subtitle = "average5am (red), average2pm (blue), reportC(black)",
+    caption = "Figure 1"
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+avgtemp <- avgtemp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+avgtemp
+```
+
