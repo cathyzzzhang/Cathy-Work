@@ -1,0 +1,203 @@
+---
+title: "IButton Aug8"
+output: html_document
+date: "2023-08-07"
+---
+
+##Everything in this markdown file is no longer regional, it is all about buttons
+
+##Section 1: K-Mean Cluster Analysis (buttons)        
+
+```{r, include=FALSE,echo=FALSE}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+mydata <- read_excel("ibuttondataAug15.xlsx")
+mydata$sensor <- as.character(mydata$sensor)
+str(mydata)
+mydata <- as.data.frame(mydata)
+rownames(mydata) <- c(mydata$sensor)
+mydata <- na.omit(mydata)
+mydata <- mydata[,-1]
+head(mydata)
+mydata <- scale(mydata)
+
+k2 <- kmeans(mydata, centers = 4, nstart = 100)
+str(k2)
+fviz_cluster(k2, data = mydata)
+
+cluster_assignments1 <- k2$cluster
+
+mydata_with_clusters1 <- cbind(mydata, Cluster = cluster_assignments1)
+
+print(mydata_with_clusters1)
+
+write.csv(mydata_with_clusters1, "ibuttonclusters.csv", row.names = FALSE)
+
+library(GGally)
+library(plotly)
+
+
+
+p <- ggparcoord(data = mydata_with_clusters1, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for ibutton")
+
+ggplotly(p)
+
+
+
+
+
+
+
+```
+
+```{r}
+button <- read_excel("avgtempAug15.xlsx")
+button$sensor <- as.character(button$sensor)
+str(button)
+button <- as.data.frame(button)
+rownames(button) <- c(button$sensor)
+button <- na.omit(button)
+button <- button[,-1]
+head(button)
+button <- scale(button)
+
+k3 <- kmeans(button, centers = 4, nstart = 100)
+str(k3)
+fviz_cluster(k3, data = button)
+
+cluster_assignments2 <- k3$cluster
+
+mydata_with_clusters2 <- cbind(button, Cluster = cluster_assignments2)
+
+print(mydata_with_clusters2)
+
+write.csv(mydata_with_clusters2, "tempclusters.csv", row.names = FALSE)
+
+p2 <- ggparcoord(data = mydata_with_clusters2, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for ibutton temperature")
+
+ggplotly(p2)
+
+```
+
+
+
+
+
+```{r}
+wssplot1 <- function(mydata, nc=4, seed=123){
+               wss <- (nrow(mydata)-1)*sum(apply(mydata,2,var))
+               for (i in 2:nc){
+                    set.seed(seed)
+                    wss[i] <- sum(kmeans(mydata, centers=i)$withinss)}
+                plot(1:nc, wss, type="b", xlab="Number of groups",
+                     ylab="Sum of squares within a group")}
+
+wssplot1(mydata,nc = 25,seed=123)
+```
+```{r}
+library(corrr)
+library(ggcorrplot)
+corr_matrix <- cor(mydata)
+ggcorrplot(corr_matrix)
+```
+
+```{r}
+library(GGally)
+library(plotly)
+
+p <- ggparcoord(data = mydata_with_clusters1, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for original blockmean")
+
+ggplotly(p)
+```
+
+## Regression Analysis       
+```{r}
+button <- read_excel("Aug8iButtonDataAndTemp.xlsx")
+```
+### August 5am      
+
+```{r}
+Canopy5 <- lm(temp5am~canopy, data=button)
+CanopyEle5 <- lm(temp5am~canopy+elevation, data=button)
+CanopyAlb5 <- lm(temp5am~canopy+albedo, data=button)
+CanopyImp5 <- lm(temp5am~canopy+impervious, data=button)
+CanopyEleAlb5 <-lm(temp5am~canopy+elevation+albedo, data=button)
+CanopyEleImp5 <-lm(temp5am~canopy+elevation+impervious, data=button)
+CanopyAlbImp5 <- lm(temp5am~canopy+albedo+impervious, data=button)
+CanopyAll5 <- lm(temp5am~canopy+elevation+albedo+impervious, data=button)
+ECanopyEle5 <- lm(temp5am~canopy*elevation, data=button)
+ECanopyAlb5 <- lm(temp5am~canopy*albedo, data=button)
+ECanopyImp5 <- lm(temp5am~canopy*impervious, data=button)
+ECanopyEleAlb5 <-lm(temp5am~canopy*elevation*albedo, data=button)
+ECanopyEleImp5 <-lm(temp5am~canopy*elevation*impervious, data=button)
+ECanopyAlbImp5 <- lm(temp5am~canopy*albedo*impervious, data=button)
+ECanopyAll5 <- lm(temp5am~canopy*elevation*albedo*impervious, data=button)
+
+aic_1 <- c(AIC(Canopy5), AIC(CanopyEle5), AIC(CanopyAlb5), AIC(CanopyImp5), AIC(CanopyEleAlb5), AIC(CanopyEleImp5), AIC(CanopyAlbImp5), AIC(CanopyAll5), 
+                AIC(ECanopyEle5), AIC(ECanopyAlb5), AIC(ECanopyImp5), AIC(ECanopyEleAlb5), AIC(ECanopyEleImp5), AIC(ECanopyAlbImp5), AIC(ECanopyAll5))
+model_1 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*imp", "*alb*imp", "*all")
+aic_table <- data.frame(
+  Model = model_1,
+  AIC = aic_1) %>%
+  arrange(AIC)
+
+print(aic_table)
+
+```
+
+### Boxplot
+```{r}
+box <- read_excel("boxplot1Aug15.xlsx")
+avgcluster1 <- box$avgcluster1
+avgcluster2 <- box$avgcluster2
+avgcluster3 <- box$avgcluster3
+avgcluster4 <- box$avgcluster4
+boxplot(avgcluster1, avgcluster2, avgcluster3, avgcluster4,
+main = "Average Temperature of Each Cluster (in Celsius)",
+names = c("cluster1", "cluster2", "cluster3", "cluster4"),
+border = "brown")
+
+amcluster1 <- box$amcluster1
+amcluster2 <- box$amcluster2
+amcluster3 <- box$amcluster3
+amcluster4 <- box$amcluster4
+am <- boxplot(amcluster1, amcluster2, amcluster3, amcluster4,
+main = "Average 5am Temperature of Each Cluster (in Celsius)",
+names = c("cluster1", "cluster2", "cluster3", "cluster4"),
+border = "blue")
+
+pmcluster1 <- box$pmcluster1
+pmcluster2 <- box$pmcluster2
+pmcluster3 <- box$pmcluster3
+pmcluster4 <- box$pmcluster4
+am <- boxplot(pmcluster1, pmcluster2, pmcluster3, pmcluster4,
+main = "Average 2pm Temperature of Each Cluster (in Celsius)",
+names = c("cluster1", "cluster2", "cluster3", "cluster4"),
+border = "darkgreen")
+
+```
+

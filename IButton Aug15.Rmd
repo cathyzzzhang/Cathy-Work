@@ -1,0 +1,150 @@
+---
+title: "IButton Aug15"
+output: html_document
+date: "2023-08-16"
+---
+
+
+## Regression  
+
+### Part 1      
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+button <- read_excel("Aug15Temp.xlsx")
+compare <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button3), color = "red") +
+  geom_line(aes(y = Tair3), color = "blue") +
+  labs(
+    title = "Cluster1 button3",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare
+
+compare1 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button4), color = "red") +
+  geom_line(aes(y = Tair4), color = "blue") +
+  labs(
+    title = "Cluster1 button4",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare1
+
+compare2 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button27), color = "red") +
+  geom_line(aes(y = Tair27), color = "blue") +
+  labs(
+    title = "Cluster1 button27",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare2
+
+compare3 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button36), color = "red") +
+  geom_line(aes(y = Tair36), color = "blue") +
+  labs(
+    title = "Cluster2 button36",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare3
+
+compare4 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button60), color = "red") +
+  geom_line(aes(y = Tair60), color = "blue") +
+  labs(
+    title = "Cluster2 button60",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare4
+
+compare5 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button30), color = "red") +
+  geom_line(aes(y = Tair30), color = "blue") +
+  labs(
+    title = "Cluster2 button30",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare5
+
+compare6 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button102), color = "red") +
+  geom_line(aes(y = Tair102), color = "blue") +
+  labs(
+    title = "Cluster3 button102",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare6
+
+compare7 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button101), color = "red") +
+  geom_line(aes(y = Tair101), color = "blue") +
+  labs(
+    title = "Cluster3 button101",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare7
+
+compare8 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button16), color = "red") +
+  geom_line(aes(y = Tair16), color = "blue") +
+  labs(
+    title = "Cluster4 button16",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare8
+
+compare9 <- button %>%
+  ggplot(mapping = aes(x = DateTime, group = 1)) +
+  geom_line(aes(y = button17), color = "red") +
+  geom_line(aes(y = Tair17), color = "blue") +
+  labs(
+    title = "Cluster4 button17",
+  ) +
+  xlab("August Date/Time") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+compare9
+
+
+
+```
+
