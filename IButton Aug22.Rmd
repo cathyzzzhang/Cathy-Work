@@ -1,0 +1,78 @@
+---
+title: "IButton Aug22"
+output: html_document
+date: "2023-08-23"
+---
+
+```{r}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+mydata <- read_excel("Aug22TempWith52.xlsx")
+mydata$sensor <- as.character(mydata$sensor)
+str(mydata)
+mydata <- as.data.frame(mydata)
+rownames(mydata) <- c(mydata$sensor)
+mydata <- na.omit(mydata)
+mydata <- mydata[,-1]
+head(mydata)
+mydata <- scale(mydata)
+```
+```{r}
+wssplot1 <- function(mydata, nc=4, seed=123){
+               wss <- (nrow(mydata)-1)*sum(apply(mydata,2,var))
+               for (i in 2:nc){
+                    set.seed(seed)
+                    wss[i] <- sum(kmeans(mydata, centers=i)$withinss)}
+                plot(1:nc, wss, type="b", xlab="Number of groups",
+                     ylab="Sum of squares within a group")}
+
+wssplot1(mydata,nc = 25,seed=123)
+```
+```{r}
+library(corrr)
+library(ggcorrplot)
+corr_matrix <- cor(mydata)
+ggcorrplot(corr_matrix)
+```
+```{r}
+k2 <- kmeans(mydata, centers = 4, nstart = 100)
+str(k2)
+fviz_cluster(k2, data = mydata)
+cluster_assignments1 <- k2$cluster
+mydata_with_clusters1 <- cbind(mydata, Cluster = cluster_assignments1)
+
+print(mydata_with_clusters1)
+
+write.csv(mydata_with_clusters1, "Aug22TempClusters.csv", row.names = FALSE)
+```
+```{r}
+library(GGally)
+library(plotly)
+
+p <- ggparcoord(data = mydata_with_clusters1, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for AugTempWith52")
+
+ggplotly(p)
+```
+

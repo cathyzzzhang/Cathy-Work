@@ -1,0 +1,483 @@
+---
+title: "IButton Aug29"
+output: html_document
+date: "2023-09-01"
+---
+```{r}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(readxl)
+
+button <- read_excel("Desktop/Aug8iButtonDataAndTemp.xlsx")
+
+#----------------5am
+Canopy5 <- lm(temp5am~canopy, data=button)
+CanopyEle5 <- lm(temp5am~canopy+elevation, data=button)
+CanopyAlb5 <- lm(temp5am~canopy+albedo, data=button)
+CanopyImp5 <- lm(temp5am~canopy+impervious, data=button)
+CanopyEleAlb5 <-lm(temp5am~canopy+elevation+albedo, data=button)
+CanopyEleImp5 <-lm(temp5am~canopy+elevation+impervious, data=button)
+CanopyAlbImp5 <- lm(temp5am~canopy+albedo+impervious, data=button)
+CanopyAll5 <- lm(temp5am~canopy+elevation+albedo+impervious, data=button)
+ECanopyEle5 <- lm(temp5am~canopy*elevation, data=button)
+ECanopyAlb5 <- lm(temp5am~canopy*albedo, data=button)
+ECanopyImp5 <- lm(temp5am~canopy*impervious, data=button)
+ECanopyEleAlb5 <-lm(temp5am~canopy*elevation*albedo, data=button)
+ECanopyEleImp5 <-lm(temp5am~canopy*elevation*impervious, data=button)
+ECanopyAlbImp5 <- lm(temp5am~canopy*albedo*impervious, data=button)
+ECanopyAll5 <- lm(temp5am~canopy*elevation*albedo*impervious, data=button)
+
+aic_1 <- c(AIC(Canopy5), AIC(CanopyEle5), AIC(CanopyAlb5), AIC(CanopyImp5), AIC(CanopyEleAlb5), AIC(CanopyEleImp5), AIC(CanopyAlbImp5), AIC(CanopyAll5), 
+                AIC(ECanopyEle5), AIC(ECanopyAlb5), AIC(ECanopyImp5), AIC(ECanopyEleAlb5), AIC(ECanopyEleImp5), AIC(ECanopyAlbImp5), AIC(ECanopyAll5))
+model_1 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table <- data.frame(
+  Model = model_1,
+  AIC = aic_1) %>%
+  arrange(AIC)
+
+aic_table
+#best result +ele
+
+CanopyEle5 <- lm(temp5am~canopy+elevation, data=button)
+
+CanopyEle5<- tidy(CanopyEle5, 
+              conf.int = TRUE, conf.level = 0.95)
+CanopyEle5 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 1: August 5AM")
+
+ECanopyAll5 <- lm(temp5am~canopy*elevation*albedo*impervious, data=button)
+ECanopyAll5<- tidy(ECanopyAll5, 
+                  conf.int = TRUE, conf.level = 0.95)
+ECanopyAll5 %>%
+  filter(term != "row1") %>%
+  filter(p.value < 0.05) %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 1: August 5AM")
+
+ECanopyAlb5 <- lm(temp5am~canopy*albedo, data=button)
+ECanopyAlb5<- tidy(ECanopyAlb5, 
+                   conf.int = TRUE, conf.level = 0.95)
+ECanopyAlb5 %>%
+  filter(term != "row1") %>%
+  filter(p.value < 0.05) %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 1: August 5AM")
+
+#----------------2pm
+Canopy2 <- lm(temp2pm~canopy, data=button)
+CanopyEle2 <- lm(temp2pm~canopy+elevation, data=button)
+CanopyAlb2 <- lm(temp2pm~canopy+albedo, data=button)
+CanopyImp2 <- lm(temp2pm~canopy+impervious, data=button)
+CanopyEleAlb2 <-lm(temp2pm~canopy+elevation+albedo, data=button)
+CanopyEleImp2 <-lm(temp2pm~canopy+elevation+impervious, data=button)
+CanopyAlbImp2 <- lm(temp2pm~canopy+albedo+impervious, data=button)
+CanopyAll2 <- lm(temp2pm~canopy+elevation+albedo+impervious, data=button)
+ECanopyEle2 <- lm(temp2pm~canopy*elevation, data=button)
+ECanopyAlb2 <- lm(temp2pm~canopy*albedo, data=button)
+ECanopyImp2 <- lm(temp2pm~canopy*impervious, data=button)
+ECanopyEleAlb2 <-lm(temp2pm~canopy*elevation*albedo, data=button)
+ECanopyEleImp2 <-lm(temp2pm~canopy*elevation*impervious, data=button)
+ECanopyAlbImp2 <- lm(temp2pm~canopy*albedo*impervious, data=button)
+ECanopyAll2 <- lm(temp2pm~canopy*elevation*albedo*impervious, data=button)
+
+aic_2 <- c(AIC(Canopy2), AIC(CanopyEle2), AIC(CanopyAlb2), AIC(CanopyImp2), AIC(CanopyEleAlb2), AIC(CanopyEleImp2), AIC(CanopyAlbImp2), AIC(CanopyAll2), 
+                AIC(ECanopyEle2), AIC(ECanopyAlb2), AIC(ECanopyImp2), AIC(ECanopyEleAlb2), AIC(ECanopyEleImp2), AIC(ECanopyAlbImp2), AIC(ECanopyAll2))
+model_2 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table2 <- data.frame(
+  Model = model_2,
+  AIC = aic_2)%>%
+  arrange(AIC)
+
+print(aic_table2)
+
+#best result *alb AIC(ECanopyAlb2)
+
+ECanopyAlb2 <- lm(temp2pm~canopy*albedo, data=button)
+
+ECanopyAlb2<- tidy(ECanopyAlb2, 
+                  conf.int = TRUE, conf.level = 0.95)
+ECanopyAlb2 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 2: August 2PM")
+
+
+
+data_filtered <- button %>% select(-albedo)
+
+# Rerun the regression analysis
+CanopyEle2 <- lm(temp2pm ~ canopy+elevation, data = button)
+
+CanopyEle2<- tidy(CanopyEle2, 
+                   conf.int = TRUE, conf.level = 0.95)
+CanopyEle2 %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 2: August 2PM")
+
+ECanopyAlb2 <- lm(temp2pm~canopy*albedo, data=button)
+ECanopyAlb2<- tidy(ECanopyAlb2, 
+                  conf.int = TRUE, conf.level = 0.95)
+ECanopyAlb2 %>%
+  filter(term != "row1") %>%
+  filter(p.value < 0.05) %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 2: August 2PM")
+
+
+#----------------average
+CanopyA <- lm(tempavg~canopy, data=button)
+CanopyEleA <- lm(tempavg~canopy+elevation, data=button)
+CanopyAlbA <- lm(tempavg~canopy+albedo, data=button)
+CanopyImpA <- lm(tempavg~canopy+impervious, data=button)
+CanopyEleAlbA <-lm(tempavg~canopy+elevation+albedo, data=button)
+CanopyEleImpA <-lm(tempavg~canopy+elevation+impervious, data=button)
+CanopyAlbImpA <- lm(tempavg~canopy+albedo+impervious, data=button)
+CanopyAllA <- lm(tempavg~canopy+elevation+albedo+impervious, data=button)
+ECanopyEleA <- lm(tempavg~canopy*elevation, data=button)
+ECanopyAlbA <- lm(tempavg~canopy*albedo, data=button)
+ECanopyImpA <- lm(tempavg~canopy*impervious, data=button)
+ECanopyEleAlbA <-lm(tempavg~canopy*elevation*albedo, data=button)
+ECanopyEleImpA <-lm(tempavg~canopy*elevation*impervious, data=button)
+ECanopyAlbImpA <- lm(tempavg~canopy*albedo*impervious, data=button)
+ECanopyAllA <- lm(tempavg~canopy*elevation*albedo*impervious, data=button)
+
+aic_3 <- c(AIC(CanopyA), AIC(CanopyEleA), AIC(CanopyAlbA), AIC(CanopyImpA), AIC(CanopyEleAlbA), AIC(CanopyEleImpA), AIC(CanopyAlbImpA), AIC(CanopyAllA), 
+                AIC(ECanopyEleA), AIC(ECanopyAlbA), AIC(ECanopyImpA), AIC(ECanopyEleAlbA), AIC(ECanopyEleImpA), AIC(ECanopyAlbImpA), AIC(ECanopyAllA))
+model_names3 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table3 <- data.frame(
+  Model = model_names3,
+  AIC3 = aic_3) %>%
+  arrange(AIC3)
+
+print(aic_table3)
+#best result +ele
+
+CanopyEleA <- lm(tempavg~canopy+elevation, data=button)
+CanopyEleA<- tidy(CanopyEleA, 
+                   conf.int = TRUE, conf.level = 0.95)
+CanopyEleA %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 3: August Average Temp")
+
+
+ECanopyAlbA <- lm(tempavg~canopy*albedo, data=button)
+ECanopyAlbA<- tidy(ECanopyAlbA, 
+                  conf.int = TRUE, conf.level = 0.95)
+ECanopyAlbA %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 3: August Average Temp")
+
+
+#----------------ANO
+CanopyANO <- lm(averageANO~canopy, data=button)
+CanopyEleANO <- lm(averageANO~canopy+elevation, data=button)
+CanopyAlbANO <- lm(averageANO~canopy+albedo, data=button)
+CanopyImpANO <- lm(averageANO~canopy+impervious, data=button)
+CanopyEleAlbANO <-lm(averageANO~canopy+elevation+albedo, data=button)
+CanopyEleImpANO <-lm(averageANO~canopy+elevation+impervious, data=button)
+CanopyAlbImpANO <- lm(averageANO~canopy+albedo+impervious, data=button)
+CanopyAllANO <- lm(averageANO~canopy+elevation+albedo+impervious, data=button)
+ECanopyEleANO <- lm(averageANO~canopy*elevation, data=button)
+ECanopyAlbANO <- lm(averageANO~canopy*albedo, data=button)
+ECanopyImpANO<- lm(averageANO~canopy*impervious, data=button)
+ECanopyEleAlbANO <-lm(averageANO~canopy*elevation*albedo, data=button)
+ECanopyEleImpANO <-lm(averageANO~canopy*elevation*impervious, data=button)
+ECanopyAlbImpANO <- lm(averageANO~canopy*albedo*impervious, data=button)
+ECanopyAllANO <- lm(averageANO~canopy*elevation*albedo*impervious, data=button)
+aic_4 <- c(AIC(CanopyANO), AIC(CanopyEleANO), AIC(CanopyAlbANO), AIC(CanopyImpANO), AIC(CanopyEleAlbANO), AIC(CanopyEleImpANO), AIC(CanopyAlbImpANO), AIC(CanopyAllANO), 
+           AIC(ECanopyEleANO), AIC(ECanopyAlbANO), AIC(ECanopyImpANO), AIC(ECanopyEleAlbANO), AIC(ECanopyEleImpANO), AIC(ECanopyAlbImpANO), AIC(ECanopyAllANO))
+
+model_names4 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table4 <- data.frame(
+  Model = model_names4,
+  AIC4 = aic_4) %>%
+  arrange(AIC4)
+
+print(aic_table4)
+#best result ECanopyAllANO --> canopy*elevation*albedo*impervious
+
+ECanopyAllANO <- lm(averageANO~canopy*elevation*albedo*impervious, data=button)
+ECanopyAllANO<- tidy(ECanopyAllANO, 
+                  conf.int = TRUE, conf.level = 0.95)
+ECanopyAllANO %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 4: August Average ANO")
+
+CanopyEleANO <- lm(averageANO~canopy+elevation, data=button)
+CanopyEleANO<- tidy(CanopyEleANO, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyEleANO %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 4: August Average ANO")
+
+ECanopyAlbANO <- lm(averageANO~canopy*albedo, data=button)
+ECanopyAlbANO<- tidy(ECanopyAlbANO, 
+                    conf.int = TRUE, conf.level = 0.95)
+ECanopyAlbANO %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 4: August Average ANO")
+
+
+
+
+#------------------------
+traindata <- read_excel("Desktop/Aug22Train1.xlsx")
+traindata <- na.omit(traindata)
+library(caret)
+ctrl <- trainControl(method = "LOOCV")
+model <- train(DTR ~ elevation + canopy +albedo + impervious, data = traindata, method = "lm", trControl = ctrl)
+
+print(model)
+
+model3 <- train(Tmin ~ elevation + canopy +albedo + impervious, data = traindata, method = "lm", trControl = ctrl)
+print(model3)
+
+#------------------------
+library(caret)
+library(dplyr)
+library(ggplot2)
+
+traindata$sensor <- as.character(traindata$sensor)
+str(traindata)
+traindata <- as.data.frame(traindata)
+rownames(traindata) <- c(traindata$sensor)
+traindata <- na.omit(traindata)
+traindata <- traindata[,-1]
+head(traindata)
+
+set.seed(123)
+
+## Define repeated cross validation with 5 folds and three repeats
+repeat_cv <- trainControl(method='repeatedcv', number=10, repeats=5)
+
+#Smaller datasets: Use a higher number of folds, such as 5 or 10, to ensure that each fold has enough data for reliable testing.
+#More repeats: If you have the computational resources, using a higher number of repeats (e.g., 5 or more) can provide a more stable estimate of model performance by averaging over multiple runs of cross-validation.
+
+
+#use 70% of the data for training
+train_index <- createDataPartition(y=traindata$Tmin, p=0.7, list=FALSE)
+training_set <- traindata[train_index, ]
+testing_set <- traindata[-train_index, ]
+
+forest <- train(
+  # Formula. We are using all variables to predict 
+  Tmin~., 
+  
+  # Source of data; remove the Species variable
+  data=training_set, 
+  
+  # `rf` method for random forest
+  method='rf', 
+  
+  # Add repeated cross validation as trControl
+  trControl=repeat_cv,
+  
+  # Accuracy to measure the performance of the model, but Use RMSE for regression models
+  metric='RMSE')
+
+forest$finalModel
+
+results <- predict(forest, newdata = testing_set)
+rmse <- sqrt(mean((results - testing_set$Tmin)^2))
+print(paste("RMSE:", rmse))
+
+var_imp <- varImp(forest, scale=FALSE)$importance
+var_imp <- data.frame(variables=row.names(var_imp), importance=var_imp$Overall)
+
+var_imp %>%
+  
+  ## Sort the data by importance
+  arrange(importance) %>%
+  
+  ## Create a ggplot object for aesthetic
+  ggplot(aes(x=reorder(variables, importance), y=importance)) + 
+  
+  ## Plot the bar graph
+  geom_bar(stat='identity') + 
+  
+  ## Flip the graph to make a horizontal bar plot
+  coord_flip() + 
+  
+  ## Add x-axis label
+  xlab('Variables') +
+  
+  ## Add a title
+  labs(title='Random forest variable importance') + 
+  
+  ## Some layout for the plot
+  theme_minimal() + 
+  theme(axis.text = element_text(size = 10), 
+        axis.title = element_text(size = 15), 
+        plot.title = element_text(size = 20), 
+  )
+
+y_hats <- predict(
+  
+  ## Random forest object
+  object=forest, 
+  
+  ## Data to use for predictions; remove the Species
+  newdata=testing_set[, -5])
+
+## Print the accuracy
+accuracy <- mean(y_hats == testing_set$Tmin)*100
+cat('Accuracy on testing data: ', round(accuracy, 2), '%',  sep='')
+
+#--------------------DTR
+CanopyD <- lm(DTR~canopy, data=button)
+CanopyEleD <- lm(DTR~canopy+elevation, data=button)
+CanopyAlbD <- lm(DTR~canopy+albedo, data=button)
+CanopyImpD <- lm(DTR~canopy+impervious, data=button)
+CanopyEleAlbD <-lm(DTR~canopy+elevation+albedo, data=button)
+CanopyEleImpD <-lm(DTR~canopy+elevation+impervious, data=button)
+CanopyAlbImpD <- lm(DTR~canopy+albedo+impervious, data=button)
+CanopyAllD <- lm(DTR~canopy+elevation+albedo+impervious, data=button)
+ECanopyEleD <- lm(DTR~canopy*elevation, data=button)
+ECanopyAlbD <- lm(DTR~canopy*albedo, data=button)
+ECanopyImpD <- lm(DTR~canopy*impervious, data=button)
+ECanopyEleAlbD <-lm(DTR~canopy*elevation*albedo, data=button)
+ECanopyEleImpD <-lm(DTR~canopy*elevation*impervious, data=button)
+ECanopyAlbImpD <- lm(DTR~canopy*albedo*impervious, data=button)
+ECanopyAllD <- lm(DTR~canopy*elevation*albedo*impervious, data=button)
+
+aic_8 <- c(AIC(CanopyD), AIC(CanopyEleD), AIC(CanopyAlbD), AIC(CanopyImpD), AIC(CanopyEleAlbD), AIC(CanopyEleImpD), AIC(CanopyAlbImpD), AIC(CanopyAllD), 
+           AIC(ECanopyEleD), AIC(ECanopyAlbD), AIC(ECanopyImpD), AIC(ECanopyEleAlbD), AIC(ECanopyEleImpD), AIC(ECanopyAlbImpD), AIC(ECanopyAllD))
+model_8 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table8 <- data.frame(
+  Model = model_8,
+  AIC = aic_8)%>%
+  arrange(AIC)
+
+print(aic_table8)
+
+CanopyImpD <- lm(DTR~canopy+impervious, data=button)
+CanopyImpD<- tidy(CanopyImpD, 
+                     conf.int = TRUE, conf.level = 0.95)
+CanopyImpD %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 5: August Average DTR")
+
+CanopyEleD <- lm(DTR~canopy+elevation, data=button)
+CanopyEleD<- tidy(CanopyEleD, 
+                  conf.int = TRUE, conf.level = 0.95)
+CanopyEleD %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 5: August Average DTR")
+
+
+#--------------------TMAX
+CanopyMA <- lm(Tmax~canopy, data=button)
+CanopyEleMA <- lm(Tmax~canopy+elevation, data=button)
+CanopyAlbMA <- lm(Tmax~canopy+albedo, data=button)
+CanopyImpMA <- lm(Tmax~canopy+impervious, data=button)
+CanopyEleAlbMA <-lm(Tmax~canopy+elevation+albedo, data=button)
+CanopyEleImpMA <-lm(Tmax~canopy+elevation+impervious, data=button)
+CanopyAlbImpMA <- lm(Tmax~canopy+albedo+impervious, data=button)
+CanopyAllMA <- lm(Tmax~canopy+elevation+albedo+impervious, data=button)
+ECanopyEleMA <- lm(Tmax~canopy*elevation, data=button)
+ECanopyAlbMA <- lm(Tmax~canopy*albedo, data=button)
+ECanopyImpMA <- lm(Tmax~canopy*impervious, data=button)
+ECanopyEleAlbMA <-lm(Tmax~canopy*elevation*albedo, data=button)
+ECanopyEleImpMA <-lm(Tmax~canopy*elevation*impervious, data=button)
+ECanopyAlbImpMA <- lm(Tmax~canopy*albedo*impervious, data=button)
+ECanopyAllMA <- lm(Tmax~canopy*elevation*albedo*impervious, data=button)
+
+aic_9 <- c(AIC(CanopyMA), AIC(CanopyEleMA), AIC(CanopyAlbMA), AIC(CanopyImpMA), AIC(CanopyEleAlbMA), AIC(CanopyEleImpMA), AIC(CanopyAlbImpMA), AIC(CanopyAllMA), 
+           AIC(ECanopyEleMA), AIC(ECanopyAlbMA), AIC(ECanopyImpMA), AIC(ECanopyEleAlbMA), AIC(ECanopyEleImpMA), AIC(ECanopyAlbImpMA), AIC(ECanopyAllMA))
+model_9 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table9 <- data.frame(
+  Model = model_9,
+  AIC = aic_9)%>%
+  arrange(AIC)
+
+print(aic_table9)
+
+CanopyImpMA <- lm(Tmax~canopy+impervious, data=button)
+CanopyImpMA<- tidy(CanopyImpMA, 
+                  conf.int = TRUE, conf.level = 0.95)
+CanopyImpMA %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 6: August Average Tmax")
+
+CanopyEleMA <- lm(Tmax~canopy+elevation, data=button)
+CanopyEleMA<- tidy(CanopyEleMA, 
+                   conf.int = TRUE, conf.level = 0.95)
+CanopyEleMA %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 6: August Average Tmax")
+
+#--------------------TMIN
+CanopyMI <- lm(Tmin~canopy, data=button)
+CanopyEleMI <- lm(Tmin~canopy+elevation, data=button)
+CanopyAlbMI <- lm(Tmin~canopy+albedo, data=button)
+CanopyImpMI <- lm(Tmin~canopy+impervious, data=button)
+CanopyEleAlbMI <-lm(Tmin~canopy+elevation+albedo, data=button)
+CanopyEleImpMI <-lm(Tmin~canopy+elevation+impervious, data=button)
+CanopyAlbImpMI <- lm(Tmin~canopy+albedo+impervious, data=button)
+CanopyAllMI <- lm(Tmin~canopy+elevation+albedo+impervious, data=button)
+ECanopyEleMI <- lm(Tmin~canopy*elevation, data=button)
+ECanopyAlbMI <- lm(Tmin~canopy*albedo, data=button)
+ECanopyImpMI <- lm(Tmin~canopy*impervious, data=button)
+ECanopyEleAlbMI <-lm(Tmin~canopy*elevation*albedo, data=button)
+ECanopyEleImpMI <-lm(Tmin~canopy*elevation*impervious, data=button)
+ECanopyAlbImpMI <- lm(Tmin~canopy*albedo*impervious, data=button)
+ECanopyAllMI <- lm(Tmin~canopy*elevation*albedo*impervious, data=button)
+
+aic_10 <- c(AIC(CanopyMI), AIC(CanopyEleMI), AIC(CanopyAlbMI), AIC(CanopyImpMI), AIC(CanopyEleAlbMI), AIC(CanopyEleImpMI), AIC(CanopyAlbImpMI), AIC(CanopyAllMI), 
+           AIC(ECanopyEleMI), AIC(ECanopyAlbMI), AIC(ECanopyImpMI), AIC(ECanopyEleAlbMI), AIC(ECanopyEleImpMI), AIC(ECanopyAlbImpMI), AIC(ECanopyAllMI))
+model_10 <- c("canopy", "+ele", "+alb","+imp", "+ele+alb", "+ele+imp", "+alb+imp", "all", "*ele", "*alb", "*imp", "*ele*alb", "*ele*imp", "*alb*imp", "*all")
+aic_table10 <- data.frame(
+  Model = model_10,
+  AIC = aic_10)%>%
+  arrange(AIC)
+
+print(aic_table10)
+
+CanopyEleMI <- lm(Tmin~canopy+elevation, data=button)
+CanopyEleMI<- tidy(CanopyEleMI, 
+                   conf.int = TRUE, conf.level = 0.95)
+CanopyEleMI %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 7: August Average Tmin")
+
+CanopyImpMI <- lm(Tmin~canopy+impervious, data=button)
+CanopyImpMI<- tidy(CanopyImpMI, 
+                   conf.int = TRUE, conf.level = 0.95)
+CanopyImpMI %>%
+  filter(term != "row1") %>%
+  mutate(conf.int = paste0("(", round(conf.low, digits=2), ", ", round(conf.high, digits=2), ")")) %>%
+  kable(digits = 2, format = "markdown", caption = "Table 7: August Average Tmin")
+
+```
+

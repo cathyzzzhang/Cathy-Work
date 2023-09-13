@@ -1,0 +1,264 @@
+---
+title: "IButton Sep1"
+output: html_document
+date: "2023-09-01"
+---
+
+```{r}
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(proxy)
+library(tidyverse)
+library(broom)
+library(survey)
+library(ggpubr) 
+library(ggrepel) 
+library(plotrix)
+library(knitr)
+library(patchwork)
+library(pander)
+library(gt)
+library(readxl)
+library(sjPlot)
+library(haven)
+library(readr)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+mydata <- read_excel("Sep7ButtonDataTemp.xlsx")
+head(mydata)
+```
+
+```{r}
+avgDTRtemp <- mydata %>%
+  ggplot(mapping = aes(x = sensor, group = 1)) +
+  geom_point(aes(y = iTreeDTR), color = "red") +
+  geom_point(aes(y = ButtonDTR), color = "blue") +
+  geom_hline(yintercept = mean(mydata$ButtonDTR), color="darkred")+
+  labs(
+    title = "Average August DTR ",
+    subtitle = "iTreeDTR (red), ButtonDTR (blue)",
+    caption = "Figure 1"
+  ) +
+  xlab("Sensor Number") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+avgDTRtemp <- avgDTRtemp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+avgDTRtemp
+```
+```{r}
+avgTmaxtemp <- mydata %>%
+  ggplot(mapping = aes(x = sensor, group = 1)) +
+  geom_point(aes(y = iTreeTmax), color = "darkgreen") +
+  geom_point(aes(y = ButtonTmax), color = "darkred") +
+  geom_hline(yintercept = mean(mydata$ButtonTmax), color="red")+
+  labs(
+    title = "Average August Tmax ",
+    subtitle = "iTreeTmax (darkgreen), ButtonTmax (darkread)",
+    caption = "Figure 2"
+  ) +
+  xlab("Sensor Number") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+avgTmaxtemp <- avgTmaxtemp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+avgTmaxtemp
+```
+```{r}
+avgTmintemp <- mydata %>%
+  ggplot(mapping = aes(x = sensor, group = 1)) +
+  geom_point(aes(y = iTreeTmin), color = "blue") +
+  geom_point(aes(y = ButtonTmin), color = "orange") +
+  geom_hline(yintercept = mean(mydata$ButtonTmin), color="darkblue")+
+  labs(
+    title = "Average August Tmin ",
+    subtitle = "iTreeTmin (blue), ButtonTmin (orange)",
+    caption = "Figure 3"
+  ) +
+  xlab("Sensor Number") +
+  ylab("Temperature in C") +
+  theme_bw()
+
+avgTmintemp <- avgTmintemp + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+avgTmintemp
+```
+
+
+```{r}
+Treedata <- read_excel("Sep7TreeClustering.xlsx")
+Treedata$sensor <- as.character(Treedata$sensor)
+str(Treedata)
+mydata <- as.data.frame(Treedata)
+rownames(Treedata) <- c(Treedata$sensor)
+Treedata <- na.omit(Treedata)
+Treedata <- Treedata[,-1]
+head(Treedata)
+Treedata <- scale(Treedata) 
+head(Treedata)
+```
+
+```{r}
+wssplot1 <- function(Treedata, nc=4, seed=123){
+               wss <- (nrow(Treedata)-1)*sum(apply(Treedata,2,var))
+               for (i in 2:nc){
+                    set.seed(seed)
+                    wss[i] <- sum(kmeans(Treedata, centers=i)$withinss)}
+                plot(1:nc, wss, type="b", xlab="Number of groups",
+                     ylab="Sum of squares within a group")}
+
+wssplot1(mydata,nc = 25,seed=123)
+```
+```{r}
+library(corrr)
+library(ggcorrplot)
+corr_matrix <- cor(Treedata)
+ggcorrplot(corr_matrix)
+```
+```{r}
+k2 <- kmeans(Treedata, centers = 4, nstart = 100)
+str(k2)
+fviz_cluster(k2, data = Treedata)
+cluster_assignments1 <- k2$cluster
+mydata_with_clusters1 <- cbind(Treedata, Cluster = cluster_assignments1)
+
+print(mydata_with_clusters1)
+
+write.csv(mydata_with_clusters1, "Sep1TreeClusters.csv", row.names = FALSE)
+```
+```{r}
+library(GGally)
+library(plotly)
+
+p <- ggparcoord(data = mydata_with_clusters1, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for iTree Temp")
+
+ggplotly(p)
+```
+
+```{r}
+Buttondata <- read_excel("Sep7ButtonClustering.xlsx")
+Buttondata$sensor <- as.character(Buttondata$sensor)
+str(Buttondata)
+mydata <- as.data.frame(Buttondata)
+rownames(Buttondata) <- c(Buttondata$sensor)
+Buttondata <- na.omit(Buttondata)
+Buttondata <- Buttondata[,-1]
+head(Buttondata)
+Buttondata <- scale(Buttondata)
+head(Buttondata)
+```
+```{r}
+wssplot2 <- function(Buttondata, nc=4, seed=123){
+               wss <- (nrow(Buttondata)-1)*sum(apply(Buttondata,2,var))
+               for (i in 2:nc){
+                    set.seed(seed)
+                    wss[i] <- sum(kmeans(Buttondata, centers=i)$withinss)}
+                plot(1:nc, wss, type="b", xlab="Number of groups",
+                     ylab="Sum of squares within a group")}
+
+wssplot2(mydata,nc = 25,seed=123)
+
+library(corrr)
+library(ggcorrplot)
+corr_matrix2 <- cor(Buttondata)
+ggcorrplot(corr_matrix2)
+```
+```{r}
+k3 <- kmeans(Buttondata, centers = 4, nstart = 100)
+str(k3)
+fviz_cluster(k3, data = Buttondata)
+cluster_assignments2 <- k3$cluster
+mydata_with_clusters2 <- cbind(Buttondata, Cluster = cluster_assignments2)
+
+print(mydata_with_clusters2)
+
+write.csv(mydata_with_clusters2, "Sep1ButtonClusters.csv", row.names = FALSE)
+```
+```{r}
+library(GGally)
+library(plotly)
+
+p1 <- ggparcoord(data = mydata_with_clusters2, groupColumn = "Cluster", scale = "std") +
+     labs(x = "predictor variables", y = "value (in standard-deviation units)", title = "Clustering for Button Temp")
+
+ggplotly(p1)
+```
+```{r}
+library(randomForest)
+predictdata <- read_excel("Sep7ButtonDataTemp.xlsx")
+print(head(predictdata))
+
+set.seed(123)
+
+# Split the data into a training set (e.g., 70%) and a validation set (e.g., 30%)
+train_idx <- sample(1:nrow(predictdata), 0.7 * nrow(predictdata))
+train_data <- predictdata[train_idx, ]
+valid_data <- predictdata[-train_idx, ]
+
+
+ButtonTDTR.rf <- randomForest(ButtonDTR ~ canopy + elevation + albedo + impervious, data = train_data, mtry = 4,
+                         importance = TRUE, na.action = na.omit, ntree = 500)
+
+#mtry 1 to 4 if 4 predictor variables
+
+# Make predictions on the validation set
+predictions <- predict(ButtonDTR.rf, newdata = valid_data)
+
+# Evaluate model performance (e.g., Mean Squared Error)
+mse1 <- mean((valid_data$ButtonDTR - predictions)^2)
+cat("Mean Squared Error:", mse1, "\n")
+
+ButtonDTR.rf
+plot(ButtonDTR.rf)
+dev.off
+
+
+importance(ButtonDTR.rf)
+
+# Plot variable importance
+varImpPlot(ButtonDTR.rf)
+ButtonDTR.rf
+plot(ButtonDTR.rf)
+
+actuals <- predictdata$ButtonTmin
+predictions <- predict(ButtonTmin.rf, predictdata)
+
+# Scatter plot
+plot(actuals, predictions, xlab = "Actual Values", ylab = "Predicted Values", main = "Actual vs. Predicted")
+abline(a=0, b=1, col="red") # adds y=x line for reference
+
+df_plot <- data.frame(Canopy = predictdata$canopy, 
+                      impervious = predictdata$impervious, 
+                      Predictions = predictions)
+ggplot(df_plot, aes(x = Canopy, y = Predictions, color = impervious)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "Interaction between Canopy and Impervious",
+       x = "Canopy", 
+       y = "Predictions", 
+       color = "impervious")
+
+```
+
+```{r}
+#Visualize Variable Importance
+ImpData <- as.data.frame(importance(ButtonTmax.rf))
+ImpData$Var.Names <- row.names(ImpData)
+
+ggplot(ImpData, aes(x=Var.Names, y=`%IncMSE`)) +
+  geom_segment( aes(x=Var.Names, xend=Var.Names, y=0, yend=`%IncMSE`), color="skyblue") +
+  geom_point(aes(size = IncNodePurity), color="blue", alpha=0.6) +
+  theme_light() +
+  coord_flip() +
+  theme(
+    legend.position="bottom",
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()
+  )
+```
+
